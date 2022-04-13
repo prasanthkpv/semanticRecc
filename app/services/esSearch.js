@@ -1,4 +1,7 @@
 const esClient = require('../db/es');
+const { createSimilarPageScript } = require('./helper');
+
+
 
 module.exports = {
     searchPageES: async function (url = '') {
@@ -15,19 +18,30 @@ module.exports = {
         });
     },
 
-    searchSimilarPageES: async function (titleVector = []) {
+    searchSimilarPageES: async function (params) {
+        const script = createSimilarPageScript(params);
+        console.log('script', script);
+        if (!script) throw Error('Failed to create script');
         return await esClient.search({
             index: 'pages',
             query: {
                 "script_score": {
                     "query": {
-                        "match_all": {}
+                        "bool": {
+                            "must_not": [
+                                {
+                                    "term": {
+                                        "Address.keyword": {
+                                            "value": params.url
+                                        }
+                                    }
+                                }
+                            ]
+                        }
                     },
                     "script": {
-                        "source": "cosineSimilarity(params.title_vector, 'Title_vector') + 1.0",
-                        "params": {
-                            "title_vector": titleVector
-                        }
+                        "source": script.source,
+                        "params": script.params
                     }
                 }
             }

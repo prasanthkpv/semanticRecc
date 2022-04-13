@@ -5,7 +5,7 @@ module.exports = async function searchPage(req, res) {
         const body = req.body;
         if (!body.url) throw Error('URL is required');
         const result = await searchPageES(body.url);
-        res.send({ data: result.hits.hits[0]?._source, status: 'Success' });
+        res.send({ data: result.hits.hits[0] && result.hits.hits[0]._source, status: 'Success' });
 
     } catch (e) {
         res.status(500).send({ message: e.message, status: 'Error' });

@@ -24,6 +24,7 @@ module.exports = {
         if (!script) throw Error('Failed to create script');
         return await esClient.search({
             index: 'pages',
+            size: 30,
             query: {
                 "script_score": {
                     "query": {

@@ -27,7 +27,7 @@ const cosineSimilarity = {
 //     h12Vector = [],
 //     metaDescriptionVector = []
 // }
-function createSimilarPageScript({ type = 'sumOfAll', ...data } = {}) {
+function createSimilarPageScript({ type, ...data } = {}) {
 
     const generateScript = (fields = [], delimiter = ' + ') => {
         let source = [], params = {};
@@ -46,7 +46,15 @@ function createSimilarPageScript({ type = 'sumOfAll', ...data } = {}) {
         return generateScript(Object.keys(cosineSimilarity));
     } else if (type == 'maxOfAll') {
         const script = generateScript(Object.keys(cosineSimilarity), ' , ');
-        script.source = 'Math.max(' + script.source + ')';
+        script.source = `def list = new double[] { ${script.source} };
+          def largest = 0;
+          for (def item : list) {
+            if(item > largest){
+              largest = item
+            }
+          }
+          return largest
+        `;
         return script;
     } else if (type == 'title') {
         return generateScript(['titleVector']);

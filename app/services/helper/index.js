@@ -32,8 +32,10 @@ function createSimilarPageScript({ type, ...data } = {}) {
     const generateScript = (fields = [], delimiter = ' + ') => {
         let source = [], params = {};
         fields.map(key => {
-            source.push(cosineSimilarity[key].source);
-            params[cosineSimilarity[key].sourceKey] = data[cosineSimilarity[key].key]
+            if (data[cosineSimilarity[key].key] && data[cosineSimilarity[key].key].length) {
+                source.push(cosineSimilarity[key].source);
+                params[cosineSimilarity[key].sourceKey] = data[cosineSimilarity[key].key]
+            }
         });
         return {
             source: source.join(delimiter),

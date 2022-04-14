@@ -18,12 +18,13 @@ module.exports = {
         });
     },
 
-    searchSimilarPageES: async function (params) {
+    searchSimilarPageES: async function ({ from = 0, size = 30, ...params }) {
         const script = createSimilarPageScript(params);
         if (!script) throw Error('Failed to create script');
         const query = {
             index: 'pages',
-            size: 30,
+            size,
+            from,
             query: {
                 "script_score": {
                     "query": {

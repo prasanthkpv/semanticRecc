@@ -20,9 +20,8 @@ module.exports = {
 
     searchSimilarPageES: async function (params) {
         const script = createSimilarPageScript(params);
-        console.log('script', script);
         if (!script) throw Error('Failed to create script');
-        return await esClient.search({
+        const query = {
             index: 'pages',
             size: 30,
             query: {
@@ -46,6 +45,7 @@ module.exports = {
                     }
                 }
             }
-        });
+        };
+        return await esClient.search(query);
     }
 }

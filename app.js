@@ -3,9 +3,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { searchPage } = require('./app/controllers');
 const searchSimilarPage = require('./app/controllers/searchSimilarPage');
+require("dotenv").config();
 
 const app = express();
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 
 const RouterV1 = express.Router();
 

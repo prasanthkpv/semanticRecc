@@ -1,7 +1,6 @@
 const esClient = require('../db/es');
 const { createSimilarPageScript } = require('./helper');
-
-
+// const fs = require('fs');
 
 module.exports = {
     searchPageES: async function (url = '', index) {
@@ -23,8 +22,15 @@ module.exports = {
         });
     },
 
-    searchSimilarPageES: async function ({ from = 0, size = 30, index, ...params }) {
+    searchSimilarPageES: async function ({
+        from = 0,
+        size = 30,
+        index,
+        internalLinks = [],
+        ...params
+    }) {
         const script = createSimilarPageScript(params);
+        internalLinks.push(params.url);
         if (!script) throw Error('Failed to create script');
         const query = {
             index,
@@ -36,11 +42,7 @@ module.exports = {
                         "bool": {
                             "must_not": [
                                 {
-                                    "term": {
-                                        "Address.keyword": {
-                                            "value": params.url
-                                        }
-                                    }
+                                    "terms": { "Address.keyword": internalLinks }
                                 }
                             ]
                         }
@@ -52,6 +54,7 @@ module.exports = {
                 }
             }
         };
+        // fs.writeFileSync('./query.json', JSON.stringify(query, null, 4));
         return await esClient.search(query);
     }
 }

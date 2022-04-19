@@ -4,10 +4,10 @@ const { createSimilarPageScript } = require('./helper');
 
 
 module.exports = {
-    searchPageES: async function (url = '') {
+    searchPageES: async function (url = '', index) {
 
         return await esClient.search({
-            index: 'pages',
+            index,
             query: {
                 term: {
                     'Address.keyword': {
@@ -17,12 +17,17 @@ module.exports = {
             }
         });
     },
+    getAllESIndices: async function () {
+        return await esClient.cat.indices({
+            format: 'json'
+        });
+    },
 
-    searchSimilarPageES: async function ({ from = 0, size = 30, ...params }) {
+    searchSimilarPageES: async function ({ from = 0, size = 30, index, ...params }) {
         const script = createSimilarPageScript(params);
         if (!script) throw Error('Failed to create script');
         const query = {
-            index: 'pages',
+            index,
             size,
             from,
             query: {

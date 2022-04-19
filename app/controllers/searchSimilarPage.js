@@ -5,6 +5,7 @@ module.exports = async function searchSimilarPage(req, res) {
         const body = req.body;
         if (!body.url) throw Error('URL is required');
         if (!body.type) throw Error('Type is required');
+        if (!body.index) throw Error('Index is required');
         const result = await searchSimilarPageES(body);
         res.send({ total: result.hits.total.value, data: result.hits.hits, status: 'Success' });
 

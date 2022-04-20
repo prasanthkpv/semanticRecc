@@ -1,22 +1,26 @@
 const cosineSimilarity = {
     titleVector: {
         source: "(cosineSimilarity(params.title_vector, 'Title_vector') + 1.0)",
+        fieldKey: 'Title_vector',
         sourceKey: 'title_vector',
         key: 'titleVector'
     },
     h11Vector: {
         source: "(cosineSimilarity(params.h1_1_vector, 'H1_1_vector') + 1.0)",
         sourceKey: 'h1_1_vector',
+        fieldKey: 'H1_1_vector',
         key: 'h11Vector'
     },
     h12Vector: {
         source: "(cosineSimilarity(params.h1_2_vector, 'H1_2_vector') + 1.0)",
         sourceKey: 'h1_2_vector',
+        fieldKey: 'H1_2_vector',
         key: 'h12Vector'
     },
     metaDescriptionVector: {
         source: "(cosineSimilarity(params.Meta_Description_vector, 'Meta_Description_vector') + 1.0)",
         sourceKey: 'Meta_Description_vector',
+        fieldKey: 'Meta_Description_vector',
         key: 'metaDescriptionVector'
     }
 }
@@ -29,17 +33,40 @@ const cosineSimilarity = {
 // }
 function createSimilarPageScript({ type, ...data } = {}) {
 
-    const generateScript = (fields = [], delimiter = ' + ') => {
-        let source = [], params = {};
-        fields.map(key => {
-            if (data[cosineSimilarity[key].key] && data[cosineSimilarity[key].key].length) {
-                source.push(cosineSimilarity[key].source);
-                params[cosineSimilarity[key].sourceKey] = data[cosineSimilarity[key].key]
+    const generateScript = (fields, resultType = 'sum') => {
+        let params = {}, script = '';
+        if (resultType == 'sum') {
+            script = 'double value;';
+            fields.map(key => {
+                if (data[cosineSimilarity[key].key] && data[cosineSimilarity[key].key].length) {
+                    params[cosineSimilarity[key].sourceKey] = data[cosineSimilarity[key].key];
+                    script += `if(!doc['${cosineSimilarity[key].fieldKey}'].empty) {`;
+                    script += `value = value + cosineSimilarity(params.${cosineSimilarity[key].sourceKey},'${cosineSimilarity[key].fieldKey}') + 1;}`;
+                };
+            });
+            script += 'return value;'
+        }
+        else if (resultType == 'max') {
+            script = 'def list = [];';
+            fields.map(key => {
+                if (data[cosineSimilarity[key].key] && data[cosineSimilarity[key].key].length) {
+                    params[cosineSimilarity[key].sourceKey] = data[cosineSimilarity[key].key];
+                    script += `if(!doc['${cosineSimilarity[key].fieldKey}'].empty) {`;
+                    script += `list.add(cosineSimilarity(params.${cosineSimilarity[key].sourceKey},'${cosineSimilarity[key].fieldKey}') + 1);}`;
+                };
+            });
+            script += `
+            def largest = 0;
+            for (def item : list) {
+                if(item > largest){
+                largest = item
+                } 
             }
-        });
+            return largest;
+            `;
+        }
         return {
-            source: source.join(delimiter),
-            sourceList: source,
+            source: script,
             params
         };
     }
@@ -47,17 +74,7 @@ function createSimilarPageScript({ type, ...data } = {}) {
     if (type === 'sumOfAll') {
         return generateScript(Object.keys(cosineSimilarity));
     } else if (type == 'maxOfAll') {
-        const script = generateScript(Object.keys(cosineSimilarity), ' , ');
-        script.source = `def list = new double[] { ${script.source} };
-          def largest = 0;
-          for (def item : list) {
-            if(item > largest){
-              largest = item
-            }
-          }
-          return largest
-        `;
-        return script;
+        return generateScript(Object.keys(cosineSimilarity), 'max');
     } else if (type == 'title') {
         return generateScript(['titleVector']);
     } else if (type == 'h1') {

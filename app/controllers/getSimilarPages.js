@@ -27,28 +27,28 @@ module.exports = async function getSimilarPages(req, res) {
         }
 
         if (body.type === 'title') {
-            if (!source.Title_vector) throw Error('Title Vector is required');
+            if (!source.Title) throw Error('Title not found');
             data.titleVector = source.Title_vector;
         }
         else if (body.type === 'h1') {
-            if ((!source.H1_1_vector) && (!source.H1_2_vector)) throw Error('H1_1_vector or H1_2_vector is required');
+            if ((!source.H1_1) && (!source.H1_2)) throw Error('H1_1 or H1_2 not found');
             data.h11Vector = source.H1_1_vector;
             data.h12Vector = source.H1_2_vector;
 
         }
         else if (body.type === 'meta') {
-            if (!source.Meta_Description_vector) throw Error('Meta_Description_vector is required');
+            if (!source.Meta_Description) throw Error('Meta_Description not found');
             data.metaDescriptionVector = source.Meta_Description_vector;
         }
         else if (body.type === 'sumOfAll') {
-            if ((!source.Title_vector) && (!source.Meta_Description_vector) && (!source.H1_1_vector) && (!source.H1_2_vector)) throw Error(' Required Vectors are empty');
+            if ((!source.Title) && (!source.Meta_Description) && (!source.H1_1) && (!source.H1_2)) throw Error(' Required fields not found');
             data.titleVector = source.Title_vector;
             data.h11Vector = source.H1_1_vector;
             data.h12Vector = source.H1_2_vector;
             data.metaDescriptionVector = source.Meta_Description_vector;
         }
         else if (body.type === "maxOfAll") {
-            if ((!source.Title_vector) && (!source.Meta_Description_vector) && (!source.H1_1_vector) && (!source.H1_2_vector)) throw Error(' Required Vectors are empty');
+            if ((!source.Title) && (!source.Meta_Description) && (!source.H1_1) && (!source.H1_2)) throw Error(' Required fields not found');
             data.titleVector = source.Title_vector;
             data.h11Vector = source.H1_1_vector;
             data.h12Vector = source.H1_2_vector;

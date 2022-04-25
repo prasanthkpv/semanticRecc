@@ -62,7 +62,7 @@ module.exports = async function getSimilarPages(req, res) {
 
         const similarPageResult = await searchSimilarPageES(data);
 
-        searchResult = {
+        const searchResult = {
             message: "Success",
             data: {
                 page: searchPageResult.hits.hits[0]._source,

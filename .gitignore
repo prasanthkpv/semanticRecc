@@ -2,3 +2,10 @@ node_modules
 package-lock.json
 .env
 query.json
+Sem_Indx_ES.txt
+Data_Indx_ES.txt
+.eslintrc.js
+
+app/services/helper/test.js
+downloaddataCSV.csv
+querysum.json
